@@ -1,0 +1,63 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+import time
+
+
+driver = webdriver.Chrome(executable_path='path/to/chromedriver')
+
+try:
+    driver.get("https://demoqa.com/webtables")
+    time.sleep(2)  # Wait for the page to load
+
+    add_button = driver.find_element(By.ID, "addNewRecordButton")
+    add_button.click()
+    time.sleep(1)  # Wait for the dialog to open
+
+    submit_button = driver.find_element(By.ID, "submit")
+    submit_button.click()
+    time.sleep(1) 
+    first_name_input = driver.find_element(By.ID, "firstName")
+    last_name_input = driver.find_element(By.ID, "lastName")
+    email_input = driver.find_element(By.ID, "userEmail")
+    age_input = driver.find_element(By.ID, "age")
+    salary_input = driver.find_element(By.ID, "salary")
+    department_input = driver.find_element(By.ID, "department")
+
+    first_name_input.send_keys("John")
+    last_name_input.send_keys("Doe")
+    email_input.send_keys("john.doe@example.com")
+    age_input.send_keys("30")
+    salary_input.send_keys("50000")
+    department_input.send_keys("Engineering")
+    submit_button.click()
+    time.sleep(2)  
+
+   
+    rows = driver.find_elements(By.CSS_SELECTOR, ".rt-tr-group")
+    assert any("John" in row.text for row in rows), "New entry not found in the table"
+       
+    edit_button = driver.find_element(By.XPATH, "//span[text()='John']/following-sibling::span[@title='Edit']")
+    edit_button.click()
+    time.sleep(1)  # Wait for the dialog to open
+
+    
+    first_name_input.clear()
+    first_name_input.send_keys("Jane")
+    submit_button.click()
+    time.sleep(2)  
+
+    rows = driver.find_elements(By.CSS_SELECTOR, ".rt-tr-group")
+    assert any("Jane" in row.text for row in rows), "Updated entry not found in the table"
+
+    delete_button = driver.find_element(By.XPATH, "//span[text()='Jane']/following-sibling::span[@title='Delete']")
+    delete_button.click()
+    time.sleep(1)  
+    driver.switch_to.alert.accept()  
+    time.sleep(2)
+     
+    rows = driver.find_elements(By.CSS_SELECTOR, ".rt-tr-group")
+    assert not any("Jane" in row.text for row in rows), "Entry not deleted from the table"
+
+finally:
+    driver.quit()
